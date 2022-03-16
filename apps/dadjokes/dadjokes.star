@@ -24,16 +24,19 @@ MAX_LENGTH_STRING = "I saw an ad in a shop window, \"Television for sale, $1, vo
 
 def main(config):
     joke = cache.get("joke")
+    prev_interval = cache.get("previnterval")
 
-    refresh_interval = config.get("refreshinterval", "0")
-    text_color = config.get("textcolor")
+    refresh_interval = config.get("refreshinterval", str(DEFAULT_REFRESH_INTERVAL))
+    print(prev_interval)
+    print(refresh_interval)
+    text_color = config.get("textcolor", DEFAULT_TEXT_COLOR)
     #Validate user input
     if(not refresh_interval.isdigit()):
         refresh_interval = DEFAULT_REFRESH_INTERVAL
     else:
         refresh_interval = int(refresh_interval)
 
-    if(joke == None):
+    if(joke == None or prev_interval != refresh_interval):
         print("Getting new joke.")
         #GET HTTP request
         params = {
@@ -41,10 +44,11 @@ def main(config):
         }
         report = http.get(url=JOKES_API_URL, headers=params)
         if report.status_code != 200:
-            fail("API call failed with status %d", report.status_code)
+            fail("API call failed with status: ", report.status_code)
 
         joke = report.json()["joke"]
         cache.set("joke", joke, ttl_seconds=refresh_interval)
+        cache.set("previnterval", str(refresh_interval))
     print(joke)
 
     #Scroll faster if joke is longer.
@@ -57,7 +61,7 @@ def main(config):
         child = render.Marquee (
             child = render.WrappedText(
                 content = joke,
-                #color = text_color,
+                color = text_color,
             ),
             height = 32,
             offset_start = 30,
