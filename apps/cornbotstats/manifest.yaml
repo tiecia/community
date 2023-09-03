@@ -1,0 +1,8 @@
+---
+id: corn-bot-stats
+name: Corn Bot Stats
+summary: Stats for corn discord bot
+desc: Statistics viewer for the corn discord bot.
+author: tiecia
+fileName: corn_bot_stats.star
+packageName: cornbotstats
